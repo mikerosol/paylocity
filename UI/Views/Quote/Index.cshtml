@@ -1,0 +1,101 @@
+﻿@model List<Objects.Quote>
+@{
+    ViewBag.Title = "Quotes";
+}
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Quotes
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Quote ID</th>
+                                <th>Employee</th>
+                                <th>Dependent Count</th>
+                                <th>Total Benefit Cost Per Pay Cycle</th>
+                                <th>Total benefit Cost Per Year</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                            foreach (var quote in @Model)
+                            {
+                        <tr>
+                            <td>
+                                <button class="EditButton btn btn-primary btn-xs" title="Edit" data-quoteid="@quote.QuoteId">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="DeleteButton btn btn-danger btn-xs" title="Delete" data-quoteid="@quote.QuoteId">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                            <td>
+                                @quote.QuoteId
+                            </td>
+                            <td>
+                                @if (quote.Employee != null)
+                                        {
+                                        @(quote.Employee.FirstName + " " + quote.Employee.LastName)
+                                        }
+                            </td>
+                            <td>
+                                @quote.Dependents.Count()
+                            </td>
+                            <td>
+                                @quote.TotalBenefitCostPerPayCycle.ToString("C2")
+                            </td>
+                            <td>
+                                @quote.TotalBenefitCostPerYear.ToString("C2")
+                            </td>
+                        </tr>
+                            }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <button id="AddButton" class="btn btn-primary btn-xs" title="Add">
+                    <span class="glyphicon glyphicon-plus"></span> Create new quote
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    Paylocity.QuoteIndex = {
+        AddButtonClick: function () {
+            window.location.href = '/Quote/Details';
+        },
+        EditButtonClick: function () {
+            var quoteId = $(this).data("quoteid");
+            window.location.href = '/Quote/Details/?quoteId=' + quoteId;
+        },
+        DeleteButtonClick: function () {
+            $.ajax({
+                type: "POST",
+                url: "/Quote/Delete",
+                data: {
+                    quoteId: $(this).data("quoteid")
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        },
+        Init: function () {
+            $("#AddButton").on("click", Paylocity.QuoteIndex.AddButtonClick);
+            $(".EditButton").on("click", Paylocity.QuoteIndex.EditButtonClick);
+            $(".DeleteButton").on("click", Paylocity.QuoteIndex.DeleteButtonClick);
+        }
+    }
+
+    $(document).ready(function () {
+        Paylocity.QuoteIndex.Init();
+    });
+</script>

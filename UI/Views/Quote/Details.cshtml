@@ -1,0 +1,285 @@
+﻿@model Objects.Quote
+@{
+    ViewBag.Title = "Quote Detail";
+}
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Summary
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Quote ID</th>
+                                <th>Total Benefit Cost Per Pay Cycle</th>
+                                <th>Total benefit Cost Per Year</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Model.QuoteId
+                                </td>
+                                <td>
+                                    @Model.TotalBenefitCostPerPayCycle.ToString("C2")
+                                </td>
+                                <td>
+                                    @Model.TotalBenefitCostPerYear.ToString("C2")
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Employee
+            </div>
+            <div class="panel-body">
+                @{
+                    if (Model.Employee == null)
+                    {
+                        <div class="alert alert-warning">
+                            No employee associated with this quote.
+                        </div>
+
+                        <button id="AddEmployeeButton" class="btn btn-primary btn-xs" title="Add" data-quoteid="@Model.QuoteId">
+                            <span class="glyphicon glyphicon-plus"></span> Add employee
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Person ID</th>
+                                        <th>Person Type</th>
+                                        <th>First Name</th>
+                                        <th>Last name</th>
+                                        <th>Gross Per Pay Cycle</th>
+                                        <th>Gross Per Year</th>
+                                        <th>Benefit Cost Per Pay Cycle</th>
+                                        <th>Benefit Cost Per Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <button class="DeleteEmployeeButton btn btn-danger btn-xs" title="Delete" data-personid="@Model.Employee.PersonId" data-quoteid="@Model.QuoteId">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                            </button>
+                                        </td>
+                                        <td>@Model.Employee.PersonId</td>
+                                        <td>@Model.Employee.PersonType</td>
+                                        <td>@Model.Employee.FirstName</td>
+                                        <td>@Model.Employee.LastName</td>
+                                        <td>@Model.Employee.GrossPerPayCycle.ToString("C2")</td>
+                                        <td>@Model.Employee.GrossPerYear.ToString("C2")</td>
+                                        <td>@Model.Employee.BenefitCostPerPayCycle.ToString("C2")</td>
+                                        <td>@Model.Employee.BenefitCostPerYear.ToString("C2")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Dependent(s)
+            </div>
+            <div class="panel-body">
+                @{
+                    if (Model.Dependents.Count == 0)
+                    {
+                        <div class="alert alert-warning">
+                            No dependent(s) associated with this quote.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Person ID</th>
+                                        <th>Person Type</th>
+                                        <th>First Name</th>
+                                        <th>Last name</th>
+                                        <th>Relationship Type</th>
+                                        <th>Benefit Cost Per Pay Cycle</th>
+                                        <th>Benefit Cost Per Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (var dependent in Model.Dependents)
+                                        {
+                                <tr>
+                                    <td>
+                                        <button class="DeleteDependentButton btn btn-danger btn-xs" title="Delete" data-personid="@dependent.PersonId" data-quoteid="@Model.QuoteId">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </td>
+                                    <td>@dependent.PersonId</td>
+                                    <td>@dependent.PersonType</td>
+                                    <td>@dependent.FirstName</td>
+                                    <td>@dependent.LastName</td>
+                                    <td>@dependent.RelationshipType</td>
+                                    <td>@dependent.BenefitCostPerPayCycle.ToString("C2")</td>
+                                    <td>@dependent.BenefitCostPerYear.ToString("C2")</td>
+                                </tr>
+                                    }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                                        }
+
+                    <button id="AddDependentButton" class="btn btn-primary btn-xs" title="Add" data-quoteid="@Model.QuoteId">
+                        <span class="glyphicon glyphicon-plus"></span> Add dependent
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    Paylocity.QuoteDetails = {
+        Employee: {
+            AddButtonClick: function () {
+                var quoteId = $(this).data("quoteid");
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Employee/Item",
+                    data: {
+                        quoteId: quoteId
+                    },
+                    success: function (data) { 
+                        bootbox.dialog({
+                            closeButton: false,
+                            message: data,
+                            title: "New Employee",
+                            onEscape: true,
+                            buttons: {
+                                cancel: {
+                                    label: 'Cancel',
+                                    className: 'btn-default'
+                                },
+                                success: {
+                                    label: "Save",
+                                    className: "btn-primary",
+                                    callback: function () {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/Employee/Save",
+                                            data: $("#form").serialize(),
+                                            success: function (result) {
+                                                location.reload();
+                                            }
+                                        });                                        
+                                    }
+                                },
+                            }
+                        });
+                    }
+                });                
+            },
+            DeleteButtonClick: function () {
+                var personId = $(this).data("personid");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Employee/Delete",
+                    data: {
+                        personId: personId
+                    },
+                    success: function (result) {
+                        location.reload();
+                    }
+                });
+            }
+        },
+        Dependent: {
+            AddButtonClick: function () {
+                var quoteId = $(this).data("quoteid");
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Dependent/Item",
+                    data: {
+                        quoteId: quoteId
+                    },
+                    success: function (data) {
+                        bootbox.dialog({
+                            closeButton: false,
+                            message: data,
+                            title: "New Dependent",
+                            onEscape: true,
+                            buttons: {
+                                cancel: {
+                                    label: 'Cancel',
+                                    className: 'btn-default'
+                                },
+                                success: {
+                                    label: "Save",
+                                    className: "btn-primary",
+                                    callback: function () {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/Dependent/Save",
+                                            data: $("#form").serialize(),
+                                            success: function (result) {
+                                                location.reload();
+                                            }
+                                        });                                    
+                                    }
+                                },
+                            }
+                        });
+                    }
+                });         
+            },
+            DeleteButtonClick: function () {
+                var personId = $(this).data("personid");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Dependent/Delete",
+                    data: {
+                        personId: personId
+                    },
+                    success: function (result) {
+                        location.reload();
+                    }
+                });
+            }
+        },        
+        Init: function () {
+            //EMPLOYEE
+            $("#AddEmployeeButton").on("click", Paylocity.QuoteDetails.Employee.AddButtonClick);
+            $(".DeleteEmployeeButton").on("click", Paylocity.QuoteDetails.Employee.DeleteButtonClick);
+
+            //DEPENDENT
+            $("#AddDependentButton").on("click", Paylocity.QuoteDetails.Dependent.AddButtonClick);
+            $(".DeleteDependentButton").on("click", Paylocity.QuoteDetails.Dependent.DeleteButtonClick);
+        }
+    }
+
+    $(document).ready(function () {
+        Paylocity.QuoteDetails.Init();
+    });
+</script>
