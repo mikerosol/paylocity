@@ -1,10 +1,8 @@
 # paylocity
 Paylocity Code Challenge
 
-(C) MikeRosol.com
+&copy; MikeRosol.com
 
-User Interface:
-paylocity.codefearless.com
+User Interface: <a href="http://paylocity.codefearless.com">paylocity.codefearless.com</a>
 
-Api:
-paylocityapi.codefearless.com
+Api: <a href="http://paylocityapi.codefearless.com">paylocityapi.codefearless.com</a>
