@@ -1,4 +1,4 @@
-<h1>Paylocity Code Challenge</h1>
+<h1>Employee Benefit Calculator</h1>
 
 User Interface: <a href="http://paylocity.codefearless.com">paylocity.codefearless.com</a>
 
